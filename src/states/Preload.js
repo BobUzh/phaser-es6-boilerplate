@@ -18,6 +18,7 @@ class Preload extends Phaser.State {
         this.game.load.image('yellow','assets/images/game/gem-05.png');
         this.game.load.image('pink','assets/images/game/gem-06.png');
         this.game.load.image('shadow','assets/images/game/shadow.png');
+        this.game.load.image('hand','assets/images/game/hand.png');
 		this.game.load.image('timeUp','assets/images/text-timeup.png');
 		
 		this.game.load.audio('kill', 'assets/audio/kill.mp3');

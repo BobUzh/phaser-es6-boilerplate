@@ -28,7 +28,7 @@ class GameTitle extends Phaser.State {
 	}
 
 	startGame() {
-		this.game.state.start("Main");
+		this.game.state.start("Tutor");
 	}
 
 }

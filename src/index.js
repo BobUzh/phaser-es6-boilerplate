@@ -3,6 +3,7 @@ import Preload from 'states/Preload';
 import GameTitle from 'states/GameTitle';
 import Main from 'states/Main';
 import GameOver from 'states/GameOver';
+import Tutor from 'states/Tutor';
 
 class Game extends Phaser.Game {
 
@@ -15,6 +16,7 @@ class Game extends Phaser.Game {
 		this.state.add('GameTitle', GameTitle, false);
 		this.state.add('Main', Main, false);
 		this.state.add('GameOver', GameOver, false);
+		this.state.add('Tutor', Tutor, false);
 
 		this.state.start('Boot');
 	}
