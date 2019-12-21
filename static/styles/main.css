@@ -13,7 +13,15 @@ body {
   width: inherit;
   margin: 0px;
   padding: 0;
-  display: flex;
+  /* display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: center; */
+ }
+ .wrapper{
+   width: 100vw;
+   height: 100vh;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   overflow: hidden;
  }
