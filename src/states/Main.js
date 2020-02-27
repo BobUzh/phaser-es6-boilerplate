@@ -149,8 +149,7 @@ class Main extends Phaser.State {
 	}
 
 	activeGem(e){
-
-		console.log(e)
+		// console.log(e)
 
 		if(!this.waitSetActive){
 
@@ -158,13 +157,10 @@ class Main extends Phaser.State {
 			//can or not search second active gem
 			this.canSwipe = true;
 
-			// this.gems.bringToTop(e)
-
-			//add s shadow under active gem
+			//add shadow under active gem
 			this.shadow.x=e.position.x+7;
 			this.shadow.y=e.position.y+7;
 			this.shadow.alpha = 1;
-
 		}
 	}
 
@@ -173,100 +169,103 @@ class Main extends Phaser.State {
 	}
 
 	changeGems(){
-		this.changeEl(this.firstActive,this.secondActive);
+		this.changeTwoElements(this.firstActive,this.secondActive);
 
-			//check for a match and return or not return the animation to original position
-			let arr = [...this.searchMatch(this.secondActive),...this.searchMatch(this.firstActive)];
+			//check for a match
+			let arrMatch = [...this.searchMatch(this.secondActive),...this.searchMatch(this.firstActive)];
 
 
-			if(arr.length>=2){
-				console.log('1');
+			if(arrMatch.length>=2){
+				// console.log('1');
 
-				this.firstActive.changeWithOpponent(this.axis,false);
+				this.firstActive.animationOnShift(this.axis,false);
 				this.shadowAnimate(this.axis,false);
-				this.secondActive.changeWithOpponent(this.axis,false);
+				this.secondActive.animationOnShift(this.axis,false);
 
+				//waiting for the end of the animation shift
 				setTimeout(()=>{
-					this.killGems(arr);
+					this.killGems(arrMatch);
 					this.gravity();
 				},250);
 
 			} else {
-				console.log('2')
+				// console.log('2')
 
-				this.firstActive.changeWithOpponent(this.axis,true);
+				this.firstActive.animationOnShift(this.axis,true);
 				this.shadowAnimate(this.axis,true);
-				this.secondActive.changeWithOpponent(this.axis,true);
-				this.changeEl(this.firstActive,this.secondActive);
+				this.secondActive.animationOnShift(this.axis,true);
+
+				this.changeTwoElements(this.firstActive,this.secondActive);
 
 				this.waitSetActive=false;
 			}
-		
 	}
 
 	searchMatch(el){
-		// console.log('sister')
 
-		let arrKill = [];
+		let arrMatch = [];
+		let upEl =  this.next(el,'Y');
+		let downEl = this.prev(el,'Y');
+		let rightEl = this.next(el,'X');
+		let leftEl = this.prev(el,'X');
 
-		if( this.next(el,'Y',1) && !this.next(el,'Y',1).dead &&  this.next(el,'Y',1).key==el.color){ 
+		if( upEl && !upEl.dead &&  upEl.key==el.color){ 
 
-			arrKill.push(this.next(el,'Y',1));
+			arrMatch.push(upEl);
 
-			if( this.next(el,'Y',2) && !this.next(el,'Y',2).dead &&  this.next(el,'Y',2).key==el.color)
+			if( this.next(upEl,'Y') && !this.next(upEl,'Y').dead &&  this.next(upEl,'Y').key==el.color)
 
-					arrKill.push(this.next(el,'Y',2));
+					arrMatch.push(this.next(upEl,'Y'));
 
 					
 		}
-		if( this.prev(el,'Y',1) && !this.prev(el,'Y',1).dead &&  this.prev(el,'Y',1).key==el.color){
+		if( downEl && !downEl.dead &&  downEl.key==el.color){
 
-				arrKill.push(this.prev(el,'Y',1));
+				arrMatch.push(downEl);
 
-				if( this.prev(el,'Y',2) && !this.prev(el,'Y',2).dead &&  this.prev(el,'Y',2).key==el.color)
+				if( this.prev(downEl,'Y') && !this.prev(downEl,'Y').dead &&  this.prev(downEl,'Y').key==el.color)
 
-						arrKill.push(this.prev(el,'Y',2));
-
-		}
-
-		if( this.next(el,'X',1) &&  !this.next(el,'X',1).dead &&  this.next(el,'X',1).key==el.color){
-
-				arrKill.push(this.next(el,'X',1));
-
-				if( this.next(el,'X',2)  && !this.next(el,'X',2).dead &&  this.next(el,'X',2).key==el.color)
-
-						arrKill.push(this.next(el,'X',2));
+						arrMatch.push(this.prev(downEl,'Y'));
 
 		}
 
-		if( this.prev(el,'X',1) && !this.prev(el,'X',1).dead &&  this.prev(el,'X',1).key==el.color){
+		if( rightEl &&  !rightEl.dead &&  rightEl.key==el.color){
 
-				arrKill.push(this.prev(el,'X',1));
+				arrMatch.push(rightEl);
 
-				if( this.prev(el,'X',2) && !this.prev(el,'X',2).dead &&  this.prev(el,'X',2).key==el.color)
+				if( this.next(rightEl,'X')  && !this.next(rightEl,'X').dead &&  this.next(rightEl,'X').key==el.color)
 
-						arrKill.push(this.prev(el,'X',2));
+						arrMatch.push(this.next(rightEl,'X'));
 
 		}
 
-		let finArr =[];
-		const x =arrKill.filter((e)=>e.gridX==el.gridX)
+		if( leftEl && !leftEl.dead &&  leftEl.key==el.color){
 
-		if(x.length>=2){
-			finArr.push(...x,el)
+				arrMatch.push(leftEl);
+
+				if( this.prev(leftEl,'X') && !this.prev(leftEl,'X').dead &&  this.prev(leftEl,'X').key==el.color)
+
+						arrMatch.push(this.prev(leftEl,'X'));
+
 		}
 
-		const y =arrKill.filter((e)=>e.gridY==el.gridY)
+		let finalArr =[];
+		const arr_x =arrMatch.filter((e)=>e.gridX==el.gridX)
 
-		if(y.length>=2){
-			finArr.push(...y,el)
+		if (arr_x.length >=2 ){
+			finalArr.push(...arr_x,el)
+		}
+
+		const arr_y =arrMatch.filter((e)=>e.gridY==el.gridY)
+
+		if( arr_y.length >=2 ){
+			finalArr.push(...arr_y,el)
 		};
 
-		return finArr
-
+		return finalArr
 	}
 
-	changeEl(el1,el2){
+	changeTwoElements(el1,el2){
 
 		this.arrGems[el2.gridX][el2.gridY]=el1;
 		this.arrGems[el1.gridX][el1.gridY]=el2;
@@ -286,16 +285,16 @@ class Main extends Phaser.State {
 			for (let j = 0; j < this.arrGems[0].length; j++) {
 
 				let currentGem = this.arrGems[i][j];
-				let upThanCurrentGem = this.prev(currentGem, 'Y', 1);
+				let aboveCurrentGem = this.prev(currentGem, 'Y');
 
 				//  if the cell is empty & is there a previous cell & previous cell is not empty 
-				if (currentGem.dead && upThanCurrentGem && !upThanCurrentGem.dead) {
+				if (currentGem.dead && aboveCurrentGem && !aboveCurrentGem.dead) {
 
 					//swap
-					this.changeEl(currentGem, upThanCurrentGem);
+					this.changeTwoElements(currentGem, aboveCurrentGem);
 
 					//animation fall of gems
-					this.game.add.tween(upThanCurrentGem).to({ y: upThanCurrentGem.posY }, 600, Phaser.Easing.Bounce.Out, true, 0, 0, false);
+					this.game.add.tween(aboveCurrentGem).to({ y: aboveCurrentGem.posY }, 600, Phaser.Easing.Bounce.Out, true, 0, 0, false);
 
 					// i and j one step back
 					i --;
@@ -338,11 +337,11 @@ class Main extends Phaser.State {
 			for( let j=this.arrGems[0].length-1; j>=0; j-- ){
 
 				//looking if the same colors are nearby
-				const arr = this.searchMatch( this.arrGems[i][j]);
+				const arrMatch = this.searchMatch( this.arrGems[i][j]);
 
-				if( arr.length>0 ){
+				if( arrMatch.length>0 ){
 
-					this.killGems(arr)
+					this.killGems(arrMatch)
 					identic=true;
 
 				}
@@ -356,34 +355,33 @@ class Main extends Phaser.State {
 		arr.map( (e)=>{
 			e.kill();
 			e.dead=true;
-		} );
-		// arr.map( (e)=>e.dead=true );
+		});
 		this.score += arr.length*10;
 		this.textScore.setText(this.score);
 	}
 
-	next(gem,axis,step){
+	next(gem,axis){
 
-		if (axis=='X' && gem.gridY<7-step){
+		if ( axis=='X' && gem.gridY < 6 ){
 
-			return this.arrGems[gem.gridX][gem.gridY+step]
+			return this.arrGems[gem.gridX][gem.gridY + 1]
 
-		} else if(axis=='Y' && gem.gridX<7-step){
+		} else if(axis=='Y' && gem.gridX < 6 ){
 
-			return this.arrGems[gem.gridX+step][gem.gridY]
+			return this.arrGems[gem.gridX +1 ][gem.gridY]
 
 		}
 
 	}
-	prev(gem,axis,step){
+	prev(gem,axis){
 
-		if (axis=='X' && gem.gridY>step-1){
+		if (axis=='X' && gem.gridY > 0 ){
 
-			return this.arrGems[gem.gridX][gem.gridY-step]
+			return this.arrGems[gem.gridX][gem.gridY - 1 ]
 
-		} else if(axis=='Y' && gem.gridX>step-1){
+		} else if(axis=='Y' && gem.gridX > 0 ){
 
-			return this.arrGems[gem.gridX-step][gem.gridY]
+			return this.arrGems[gem.gridX - 1 ][gem.gridY]
 
 		}
 
@@ -396,25 +394,25 @@ class Main extends Phaser.State {
 		//find second active gem
 		switch(vector) {
 			case 'right':
-				this.secondActive= this.next( this.firstActive,'X',1 );
+				this.secondActive= this.next( this.firstActive,'X');
 				this.axis='x';
 				break;
 			case 'left':
-				this.secondActive= this.prev( this.firstActive,'X',1 );
+				this.secondActive= this.prev( this.firstActive,'X');
 				this.axis='x';
 				break;
 			case 'up':
-				this.secondActive= this.prev( this.firstActive,'Y',1 );
+				this.secondActive= this.prev( this.firstActive,'Y');
 				this.axis='y';
 				break;
 			case 'down':
-				this.secondActive= this.next( this.firstActive,'Y',1 );
+				this.secondActive= this.next( this.firstActive,'Y');
 				this.axis='y';
 				break;
 			default:
 				null
 		}
-				//if second active gem null, animate 
+				//if second active gem null, animation "can not move"
 				if (!this.secondActive){ 
 
 					this.firstActive.canNotMove();

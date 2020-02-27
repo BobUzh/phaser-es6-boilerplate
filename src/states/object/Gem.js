@@ -11,7 +11,7 @@ export default class Gem extends Phaser.Sprite{
         this.dead = false;
         this.match = false;
     }
-
+    
     setUp(){
 		//small cosmetic 
       this.scale.setTo( 1.1 , 1.1 );
@@ -21,7 +21,7 @@ export default class Gem extends Phaser.Sprite{
      canNotMove(){
         this.game.add.tween( this ).to( {x:this.posX+10}, 50 , Phaser.Easing.Linear.Out , true , 0 , 1 , true );
      }
-     changeWithOpponent(axis,repeat){
+     animationOnShift(axis,repeat){
         if( axis == 'y' ){
 
            this.game.add.tween( this ).to( {y:this.posY}, 200 , Phaser.Easing.Linear.Out , true , 0 , 0 , repeat )
