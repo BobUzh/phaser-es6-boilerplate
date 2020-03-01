@@ -4,8 +4,7 @@ class Preload extends Phaser.State {
 
 		// this.load.setBaseURL("https://bobuzh.github.io/phaser-test");
 		
-		this.game.load.image('background1', 'assets/images/backgrounds/background1.jpg');
-		this.game.load.image('background', 'assets/images/backgrounds/background.jpg');
+		this.game.load.image('background', 'assets/images/backgrounds/bg.jpg');
 		this.game.load.image('donut', 'assets/images/donut.png');
 		this.game.load.image('logo', 'assets/images/donuts_logo.png');
 		this.game.load.image('play', 'assets/images/btn-play.png');

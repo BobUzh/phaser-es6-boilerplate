@@ -4,24 +4,35 @@
 html {
   width: 100%;
   height: 100%;
-  margin: 0px;
-  padding: 0px;
 }
 
 body {
-  height: inherit;
-  width: inherit;
-  margin: 0px;
+  margin: 0 auto;
   padding: 0;
-  /* display: flex;
-  justify-content: center;
-  align-items: center; */
  }
  .wrapper{
+  
    width: 100vw;
    height: 100vh;
    display: flex;
    justify-content: center;
    align-items: center;
-   overflow: hidden;
+ }
+ @media (orientation: landscape){
+  #content{
+    height: 100%;
+   }
+  .wrapper{
+    background: url('../assets/images/backgrounds/gorizontal.jpg') no-repeat center center;
+    background-size: auto 100%;
+  }
+ }
+ @media (orientation: portrait){
+  #content{
+    width: 100%;
+   }
+   .wrapper{
+    background: url('../assets/images/backgrounds/vertical.jpg') no-repeat center center;
+    background-size: 100% auto;
+  }
  }

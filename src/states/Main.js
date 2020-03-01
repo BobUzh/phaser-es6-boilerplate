@@ -3,15 +3,15 @@ import Gem from './object/Gem';
 class Main extends Phaser.State {
 
 	create() {
-		//coordinates gems in background
-		this.START_X_POSITION =325;
+		//start coordinates gems on the background
+		this.START_X_POSITION =48;
 		this.START_Y_POSITION =310;
 		this.STEP_FOR_ROW = 104;
 		this.STEP_FOR_COLUM = 86;
 
 		this.score = 0;
 		this.canSwipe=false;
-		this.waitSetActive=true;
+		this.waitSetActive=false;
 		this.firstActive = null;
 		this.secondActive = null;
 		this.typesGems = [ 'red' , 'blue' , 'green' , 'light-blue' , 'yellow' , 'pink' ];
@@ -23,11 +23,6 @@ class Main extends Phaser.State {
 		// central coordinates
 		const {centerX,centerY}=this.game.world;
 
-		//add img BIG DONUT in center
-		const donut_W = this.game.cache.getImage( 'donut' ).width/2;
-		const donut_H = this.game.cache.getImage( 'donut' ).height/2;
-		const donut = this.game.add.image( centerX-donut_W , centerY-donut_H+100 , 'donut' );
-
 		//add section SCORE
 		const score_W = this.game.cache.getImage( 'score' ).width/2;
 		const score_H = this.game.cache.getImage( 'score' ).height/2;
@@ -37,37 +32,43 @@ class Main extends Phaser.State {
 		this.textScore = this.game.add.text( centerX , score_H+20 , this.score , {fontSize:'90px' , fill:'#ffffff'} );
 		this.textScore.anchor.set(0.5);
 
+		// text  'version 2.0'
+		this.game.add.text(centerX+score_W/1.55 , 25 , 'v 2.0' ,{fontSize:'20px' , fill:'black',font: 'Pacifico'})
+
 		//timer
 		this.timer = 60;
-		this.textTime = this.game.add.text( centerX-score_W*1.5 ,  score_H+20 , '60s' , {  fill: "#000000", align: "center", fontSize:'90px' } );
+		this.textTime = this.game.add.text( centerX-score_W*1.5 ,  score_H+20 , '60s' , {  fill: "#2f2f2f", align: "center", fontSize:'90px', font: 'Pacifico',fontWeight:'bold' } );
 		this.textTime.anchor.set(0.5);
 
 		//update timer
 		this.game.time.events.loop( Phaser.Timer.SECOND , this.updateTime , this );
 
-		//timer game over 
+		//finish timer
 		this.game.time.events.add( Phaser.Timer.SECOND*63 , this.gameOver , this );
 
-		//add sound background
+		//add and play auido background
 		this.backgroundSound = this.game.add.audio('backgroundSound',0.5,true);
 		this.backgroundSound.play();
 
-		//button sound on/off
+		//button audio background , on/off
 		this.btnSound = this.game.add.button( centerX+score_W+10, 30 , 'sound' );
 		this.btnSound.inputEnabled = true;
 		this.btnSound.events.onInputDown.add( this.toggleSound , this );
 
-		//sound for 3 match
+		//audio for 3match
 		this.soundKill = this.game.add.audio('kill',0.5);
 		
-		//sound for random 3 match 
+		//audio for random 3match 
 		this.soundRndKill = this.game.add.audio('rndKill',0.5);
 
-		//create shadow and hide
+		//create shadow(gem) and hide
 		this.shadow = this.game.add.image( 0 , 0 , 'shadow' );
 		this.shadow.scale.setTo(  1.2 , 1.2 );
-		this.shadow.anchor.set(0.5);
+		this.shadow.anchor.set(0.45,0.45);
 		this.shadow.alpha=0;
+
+		// create group gems
+		this.gems = this.game.add.group();
 
 		// array needed 99.99%
 		this.arrGems = [
@@ -80,12 +81,14 @@ class Main extends Phaser.State {
 			[ null , null , null , null , null , null , null ]
 		];
 
-		// create group gems
-		this.gems = this.game.add.group();
+		//img BIG DONUT in center
+		const donut_W = this.game.cache.getImage( 'donut' ).width/2;
+		const donut_H = this.game.cache.getImage( 'donut' ).height/2;
+		const donut = this.game.add.image( centerX-donut_W , centerY-donut_H+100 , 'donut' );
 
-		// img BIG DONUT tween
+		// img BIG DONUT start animation
 		this.game.add.tween( donut ).to( {y:score_H*2-10} , 750 , Phaser.Easing.Bounce.Out , true , 500 , 0 , true )
-									.onComplete.add( ()=> this.game.add.tween( donut ).to( {x:-donut_W*2} , 500 , Phaser.Easing.Linear.Out , true , 500 , 0 , false ) );
+									.onComplete.add( ()=> this.game.add.tween( donut ).to( {y:-donut_H*2} , 500 , Phaser.Easing.Linear.Out , true , 500 , 0 , false ) );
 
 
 		//waiting the end animation BIG DONUT
@@ -107,7 +110,7 @@ class Main extends Phaser.State {
 	}
 
 	updateTime() {
-		//waiting the end animation BIG DONUT
+		//waiting the end animation BIG DONUT 2s
 		setTimeout( ()=>{
 			this.timer--;
 			this.textTime.setText( this.timer+'s');
@@ -120,6 +123,7 @@ class Main extends Phaser.State {
 
 	gameOver(){
 		
+		this.backgroundSound.stop();
 		this.game.state.start("GameOver");
 	}
 	shadowAnimate(axis,repeat){
@@ -134,6 +138,8 @@ class Main extends Phaser.State {
 
 				let gem = new Gem( this.game , i , j , this.START_X_POSITION + j*this.STEP_FOR_ROW , this.START_Y_POSITION + i*this.STEP_FOR_COLUM , this.rndColor() );
 				this.gems.add(gem);
+
+				//small cosmetic 
 				gem.setUp();
 				
 				 // subscribe to two listeners
@@ -149,7 +155,7 @@ class Main extends Phaser.State {
 	}
 
 	activeGem(e){
-		// console.log(e)
+		console.log(e)
 
 		if(!this.waitSetActive){
 
@@ -157,9 +163,9 @@ class Main extends Phaser.State {
 			//can or not search second active gem
 			this.canSwipe = true;
 
-			//add shadow under active gem
-			this.shadow.x=e.position.x+7;
-			this.shadow.y=e.position.y+7;
+			//set shadow under active gem
+			this.shadow.x=e.x;
+			this.shadow.y=e.y;
 			this.shadow.alpha = 1;
 		}
 	}
@@ -168,19 +174,23 @@ class Main extends Phaser.State {
 		this.canSwipe= false;
 	}
 
+	animationOnShift(repeat){
+
+		this.firstActive.animationOnShift(this.axis,repeat);
+		this.shadowAnimate(this.axis,repeat);
+		this.secondActive.animationOnShift(this.axis,repeat);
+	}
+
 	changeGems(){
+
 		this.changeTwoElements(this.firstActive,this.secondActive);
 
 			//check for a match
 			let arrMatch = [...this.searchMatch(this.secondActive),...this.searchMatch(this.firstActive)];
 
+			if(arrMatch.length > 2){
 
-			if(arrMatch.length>=2){
-				// console.log('1');
-
-				this.firstActive.animationOnShift(this.axis,false);
-				this.shadowAnimate(this.axis,false);
-				this.secondActive.animationOnShift(this.axis,false);
+				this.animationOnShift(false);
 
 				//waiting for the end of the animation shift
 				setTimeout(()=>{
@@ -189,14 +199,8 @@ class Main extends Phaser.State {
 				},250);
 
 			} else {
-				// console.log('2')
-
-				this.firstActive.animationOnShift(this.axis,true);
-				this.shadowAnimate(this.axis,true);
-				this.secondActive.animationOnShift(this.axis,true);
-
+				this.animationOnShift(true);
 				this.changeTwoElements(this.firstActive,this.secondActive);
-
 				this.waitSetActive=false;
 			}
 	}
@@ -204,49 +208,41 @@ class Main extends Phaser.State {
 	searchMatch(el){
 
 		let arrMatch = [];
-		let upEl =  this.next(el,'Y');
-		let downEl = this.prev(el,'Y');
+		let upperEl =  this.next(el,'Y');
+		let lowerEl = this.prev(el,'Y');
 		let rightEl = this.next(el,'X');
 		let leftEl = this.prev(el,'X');
 
-		if( upEl && !upEl.dead &&  upEl.key==el.color){ 
+		if( upperEl && !upperEl.dead &&  upperEl.key==el.color){ 
 
-			arrMatch.push(upEl);
+			arrMatch.push(upperEl);
+			if( this.next(upperEl,'Y') && !this.next(upperEl,'Y').dead &&  this.next(upperEl,'Y').key==el.color)
 
-			if( this.next(upEl,'Y') && !this.next(upEl,'Y').dead &&  this.next(upEl,'Y').key==el.color)
+					arrMatch.push(this.next(upperEl,'Y'));
 
-					arrMatch.push(this.next(upEl,'Y'));
-
-					
 		}
-		if( downEl && !downEl.dead &&  downEl.key==el.color){
+		if( lowerEl && !lowerEl.dead &&  lowerEl.key==el.color){
 
-				arrMatch.push(downEl);
+				arrMatch.push(lowerEl);
+				if( this.prev(lowerEl,'Y') && !this.prev(lowerEl,'Y').dead &&  this.prev(lowerEl,'Y').key==el.color)
 
-				if( this.prev(downEl,'Y') && !this.prev(downEl,'Y').dead &&  this.prev(downEl,'Y').key==el.color)
-
-						arrMatch.push(this.prev(downEl,'Y'));
-
+						arrMatch.push(this.prev(lowerEl,'Y'));
 		}
 
 		if( rightEl &&  !rightEl.dead &&  rightEl.key==el.color){
 
 				arrMatch.push(rightEl);
-
 				if( this.next(rightEl,'X')  && !this.next(rightEl,'X').dead &&  this.next(rightEl,'X').key==el.color)
 
 						arrMatch.push(this.next(rightEl,'X'));
-
 		}
 
 		if( leftEl && !leftEl.dead &&  leftEl.key==el.color){
 
 				arrMatch.push(leftEl);
-
 				if( this.prev(leftEl,'X') && !this.prev(leftEl,'X').dead &&  this.prev(leftEl,'X').key==el.color)
 
 						arrMatch.push(this.prev(leftEl,'X'));
-
 		}
 
 		let finalArr =[];
@@ -265,15 +261,17 @@ class Main extends Phaser.State {
 		return finalArr
 	}
 
-	changeTwoElements(el1,el2){
+	changeTwoElements ( el1 , el2 ){
 
-		this.arrGems[el2.gridX][el2.gridY]=el1;
-		this.arrGems[el1.gridX][el1.gridY]=el2;
+		//change el in grid 
+		this.arrGems[ el2.gridX ][ el2.gridY ]= el1;
+		this.arrGems[ el1.gridX ][ el1.gridY ]= el2;
 
-		[el1.gridX,el2.gridX]=[el2.gridX,el1.gridX];
-		[el1.gridY,el2.gridY]=[el2.gridY,el1.gridY];
-		[el1.posX,el2.posX]=[el2.posX,el1.posX];
-		[el1.posY,el2.posY]=[el2.posY,el1.posY];
+		// change value properties 
+		[ el1.gridX , el2.gridX ]=[ el2.gridX , el1.gridX ];
+		[ el1.gridY , el2.gridY ]=[ el2.gridY , el1.gridY ];
+		[ el1.posX  , el2.posX  ]=[ el2.posX  , el1.posX  ];
+		[ el1.posY  , el2.posY  ]=[ el2.posY  , el1.posY  ];
 
 	}
 
@@ -292,9 +290,7 @@ class Main extends Phaser.State {
 
 					//swap
 					this.changeTwoElements(currentGem, aboveCurrentGem);
-
-					//animation fall of gems
-					this.game.add.tween(aboveCurrentGem).to({ y: aboveCurrentGem.posY }, 600, Phaser.Easing.Bounce.Out, true, 0, 0, false);
+					aboveCurrentGem.animationFall();
 
 					// i and j one step back
 					i --;
@@ -317,8 +313,7 @@ class Main extends Phaser.State {
 				el.loadTexture(el.color);
 				el.dead=false;
 				el.reset(el.posX,el.posY-200);
-
-				this.game.add.tween( el ).to( {y:el.posY} , 1000 , Phaser.Easing.Bounce.Out , true , 0 , 0 , false )
+				el.animationNewGem();
 			}
 		}));
 		//duration animation fall newGems 1000 , so start search identic color with a delay 1000+
@@ -427,7 +422,7 @@ class Main extends Phaser.State {
 		if(this.firstActive && this.canSwipe){
 
 
-			if(this.game.input.x>this.firstActive.x+40){
+			if(this.game.input.x > this.firstActive.x+40 ){
 
 				this.canSwipe=false;
 				this.searchSecondActive('right');

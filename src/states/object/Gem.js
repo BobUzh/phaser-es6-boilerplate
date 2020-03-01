@@ -9,7 +9,6 @@ export default class Gem extends Phaser.Sprite{
         this.gridX=gridX;
         this.gridY=gridY;
         this.dead = false;
-        this.match = false;
     }
     
     setUp(){
@@ -29,5 +28,13 @@ export default class Gem extends Phaser.Sprite{
 
            this.game.add.tween( this ).to( {x:this.posX}, 200 , Phaser.Easing.Linear.Out , true , 0 , 0 , repeat )
         }
+     }
+     animationFall(){
+      //animation fall of gems
+      this.game.add.tween(this).to({ y: this.posY }, 600, Phaser.Easing.Bounce.Out, true, 0, 0, false);
+     }
+     
+     animationNewGem() {
+      this.game.add.tween( this ).to( {y:this.posY} , 1000 , Phaser.Easing.Bounce.Out , true , 0 , 0 , false );
      }
 }
